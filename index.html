@@ -125,6 +125,7 @@
           });
           if (response.ok) {
             alert("Gửi thành công");
+            document.getElementById("inputData").value = "";
           } else {
             alert("Gửi thất bại");
           }
@@ -151,6 +152,7 @@
           if (response.ok) {
             alert("Gửi file thành công");
             clearFile();
+            document.getElementById("inputData").value = "";
           } else {
             alert("Gửi file thất bại");
           }
