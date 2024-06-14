@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Uploader</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #615efc;
+      }
+      .container {
+        min-width: 600px;
+      }
+      .container-btn {
+        display: flex;
+        justify-content: end;
+        align-items: center;
+      }
+      textarea {
+        width: 100%;
+        resize: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+        margin-top: 10px;
+      }
+      button {
+        margin-top: 10px;
+        border-radius: 8px;
+        background-color: #fff;
+        outline: none;
+        border: none;
+        padding: 10px 16px;
+      }
+      input[type="file"] {
+        margin-top: 10px;
+      }
+      #fileContainer {
+        margin-top: 10px;
+      }
+      #fileName {
+        margin-left: 10px;
+      }
+      #closeButton {
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin-left: 10px;
+      }
+      input[type="file"]::file-selector-button + span {
+        display: none;
+      }
+      label {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <label>Nhập JSON hoặc String</label>
+      <textarea id="inputData" placeholder="Nhập JSON hoặc string tại đây"></textarea>
+      <button onclick="sendData()" style="margin-bottom: 10px">Gửi Dữ Liệu</button>
+      <br />
+      <div>
+        <label>Nhập JSON hoặc String</label>
+      </div>
+      <button onclick="chooseFile()">Chọn file</button>
+      <input type="file" id="inputFile" onchange="handleFileSelect(event)" style="display: none" />
+      <div id="fileContainer" style="display: none">
+        <span id="fileName"></span>
+        <button id="closeButton" onclick="clearFile()">Delete</button>
+      </div>
+      <div>
+        <button onclick="sendFile()">Gửi File</button>
+      </div>
+    </div>
+
+    <script>
+      let selectedFile = null;
+
+      function chooseFile() {
+        document.getElementById("inputFile").click();
+      }
+
+      function handleFileSelect(event) {
+        selectedFile = event.target.files[0];
+        if (selectedFile) {
+          document.getElementById("fileName").innerText = selectedFile.name;
+          document.getElementById("fileContainer").style.display = "block";
+        }
+      }
+
+      function clearFile() {
+        selectedFile = null;
+        document.getElementById("inputFile").value = "";
+        document.getElementById("fileContainer").style.display = "none";
+      }
+
+      async function sendData() {
+        const inputData = document.getElementById("inputData").value;
+
+        if (!inputData) {
+          alert("Vui lòng nhập dữ liệu");
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:3000/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ data: inputData }),
+          });
+          if (response.ok) {
+            alert("Gửi thành công");
+          } else {
+            alert("Gửi thất bại");
+          }
+        } catch (error) {
+          alert("Gửi thất bại");
+          console.error(error);
+        }
+      }
+
+      async function sendFile() {
+        if (!selectedFile) {
+          alert("Vui lòng chọn file");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        try {
+          const response = await fetch("http://localhost:3000/upload-file", {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            alert("Gửi file thành công");
+            clearFile();
+          } else {
+            alert("Gửi file thất bại");
+          }
+        } catch (error) {
+          alert("Gửi file thất bại");
+          console.error(error);
+        }
+      }
+    </script>
+  </body>
+</html>
